@@ -1,0 +1,90 @@
+---
+layout: runbook
+title: '#4471 split · five problems, not one'
+owner: support desk
+status: proposed
+reviewed: 2026-10-29
+signature: v1.eyJzdWIiOiIzNjY5IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyODY3NzIsImV4cCI6MTc5MzM3MzE3Mn0.opAOdS4Jrsr7uYiCRdA8wvybc8yv7fnZz3yrwyoFlg8
+---
+
+<script>
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+We merged 412 reports about dates into #4471 and marked it known: "dates parse mm/dd in eu
+locales, one issue, one fix queued." Reading the reports, #4471 holds **five problems**.
+Only one of them is the parser.
+
+<Callout>
+Proposed split. Each problem below is one ticket. Counts are unique reports (one id, one
+report).
+</Callout>
+
+## The five problems
+
+| Problem | Reports | Ticket |
+|---|---|---|
+| Parser reads day-first dates as month-first | 374 | 1 |
+| booking-v3 form hint says MM/DD, form parses day-first | 33 | 2 |
+| Bookings land one day off (DST suspected) | 3 | 3 |
+| Invite timestamped before the booking was made | 1 | 4 |
+| Same meeting renders on different days in different zones | 1 | 5 |
+
+374 + 33 + 3 + 1 + 1 = 412.
+
+## 1 · The parser flip — 374 reports
+
+Every tenant we take reports for writes the day first (en-GB, de-DE, es-ES, nl-NL, cs-CZ,
+it-IT, fr-FR, pl-PL, pt-PT, da-DK, en-IE). The shared parser reads every date month first,
+so a tenant's dates come out flipped: "5 August" becomes 8 May. This is what most of #4471
+is, and the fix already queued covers it. First seen 2026-04-01, last 2026-10-04, all 11
+tenants, channels app/email/form.
+
+Four of the 374 name the problem without a date pair in the body: a feature request for a
+day-first setting (R-41290), two wrong-day complaints (R-41417, R-41514), and October
+bookings arriving as January (R-41615 — 1 October parsed as 10 January). We file them here
+because each is this bug as its reporter lived it.
+
+## 2 · The booking-v3 hint — 33 reports
+
+Through the booking-v3 form the hint under the date field says MM/DD/YYYY, so the tenant's
+people type the month first — and the form then reads it the tenant's way, day first. The
+dates flip too, which is why these landed in #4471, but the cause is the hint, not the
+parser: fixing the parser will not touch this form. All 33 reports came through the form
+channel from the three booking-v3 tenants (alder.physio 12, copper.studio 11,
+pale.harbour 10). The fix is the hint text.
+
+## 3 · One day off — 3 reports
+
+R-41202 (invite says Tuesday 12 May, calendar says Monday 11 May), R-41209 ("every booking
+in June is one day off. Only June."), R-41620 (Tuesday 6 October showed as Monday). Three
+tenants, three channels, no date flip — the booking moves by exactly one day. The
+"only June" report points at DST handling in day boundary math. Intake tagged all three
+`parser`; none of them is.
+
+## 4 · The invite that came before the booking — 1 report
+
+R-41344's neighbour in our notes: R-41236 — the invite arrived before the reporter made the
+booking. Not a date parse at all: the invite timestamp is wrong, or the invite is sent on
+a clock ahead of the booking. One report, nine.lanterns, app channel.
+
+## 5 · Two days for one meeting — 1 report
+
+R-41344 — a client in Lisbon got Tuesday, a client in Toronto got Monday, same meeting,
+held twice. The invite renders the day in the sender's zone instead of the recipient's.
+One report, pale.harbour, email channel.
+
+## What the desk read differently
+
+desk-notes.json read five reports as one "one day move": R-41202, R-41209, R-41236,
+R-41344, R-41620. They are three problems — one day off (3), the early invite (1), the
+two-zone meeting (1) — and none of them is the parser.
+
+## Lessons
+
+- A merged ticket is only as good as the one subject line everyone was matched on. Count
+  once, read twice.
+- Intake tags guess from the browser; the cause depends on the tenant and the form.
+
+<RenderStamp {signature} />

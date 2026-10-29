@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>#4471 split · five problems, not one</title>
+<style>
+  body { font: 16px/1.6 -apple-system, "Segoe UI", sans-serif; margin: 0; background: #f7f7f5; color: #1c1c1a; }
+  main { max-width: 720px; margin: 2rem auto; padding: 2.5rem 3rem; background: #fff; border: 1px solid #e3e3df; border-radius: 8px; }
+  h1 { font-size: 1.5rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid #ddd; padding: .4rem .6rem; text-align: left; }
+  th { background: #f0f0ec; }
+  .callout { border-left: 3px solid #b7b7b0; background: #fafaf6; padding: .6rem 1rem; margin: 1rem 0; }
+  code { background: #f0f0ec; padding: .1rem .3rem; border-radius: 3px; }
+  .stamp { margin-top: 2rem; border-top: 1px dashed #c9c9c2; padding-top: .8rem; font-size: .85rem; color: #666; }
+  .meta { font-size: .85rem; color: #666; }
+</style>
+</head>
+<body>
+<main>
+  <p class="meta">kb · incident · owner: support desk · status: proposed · reviewed 2026-10-29</p>
+  <h1>#4471 split · five problems, not one</h1>
+
+  <p>We merged 412 reports about dates into #4471 and marked it known: "dates parse mm/dd in eu
+  locales, one issue, one fix queued." Reading the reports, #4471 holds <strong>five problems</strong>.
+  Only one of them is the parser.</p>
+
+  <div class="callout"><strong>Proposed split.</strong> Each problem below is one ticket. Counts are
+  unique reports (one id, one report).</div>
+
+  <h2>The five problems</h2>
+  <table>
+    <tr><th>Problem</th><th>Reports</th><th>Ticket</th></tr>
+    <tr><td>Parser reads day-first dates as month-first</td><td>374</td><td>1</td></tr>
+    <tr><td>booking-v3 form hint says MM/DD, form parses day-first</td><td>33</td><td>2</td></tr>
+    <tr><td>Bookings land one day off (DST suspected)</td><td>3</td><td>3</td></tr>
+    <tr><td>Invite timestamped before the booking was made</td><td>1</td><td>4</td></tr>
+    <tr><td>Same meeting renders on different days in different zones</td><td>1</td><td>5</td></tr>
+  </table>
+  <p>374 + 33 + 3 + 1 + 1 = 412.</p>
+
+  <h2>1 · The parser flip — 374 reports</h2>
+  <p>Every tenant we take reports for writes the day first (en-GB, de-DE, es-ES, nl-NL, cs-CZ,
+  it-IT, fr-FR, pl-PL, pt-PT, da-DK, en-IE). The shared parser reads every date month first,
+  so a tenant's dates come out flipped: "5 August" becomes 8 May. This is what most of #4471
+  is, and the fix already queued covers it. First seen 2026-04-01, last 2026-10-04, all 11
+  tenants, channels app/email/form.</p>
+  <p>Four of the 374 name the problem without a date pair in the body: a feature request for a
+  day-first setting (R-41290), two wrong-day complaints (R-41417, R-41514), and October
+  bookings arriving as January (R-41615 — 1 October parsed as 10 January). We file them here
+  because each is this bug as its reporter lived it.</p>
+
+  <h2>2 · The booking-v3 hint — 33 reports</h2>
+  <p>Through the booking-v3 form the hint under the date field says MM/DD/YYYY, so the tenant's
+  people type the month first — and the form then reads it the tenant's way, day first. The
+  dates flip too, which is why these landed in #4471, but the cause is the hint, not the
+  parser: fixing the parser will not touch this form. All 33 reports came through the form
+  channel from the three booking-v3 tenants (alder.physio 12, copper.studio 11,
+  pale.harbour 10). The fix is the hint text.</p>
+
+  <h2>3 · One day off — 3 reports</h2>
+  <p>R-41202 (invite says Tuesday 12 May, calendar says Monday 11 May), R-41209 ("every booking
+  in June is one day off. Only June."), R-41620 (Tuesday 6 October showed as Monday). Three
+  tenants, three channels, no date flip — the booking moves by exactly one day. The
+  "only June" report points at DST handling in day boundary math. Intake tagged all three
+  <code>parser</code>; none of them is.</p>
+
+  <h2>4 · The invite that came before the booking — 1 report</h2>
+  <p>R-41236 — the invite arrived before the reporter made the booking. Not a date parse at
+  all: the invite timestamp is wrong, or the invite is sent on a clock ahead of the booking.
+  One report, nine.lanterns, app channel.</p>
+
+  <h2>5 · Two days for one meeting — 1 report</h2>
+  <p>R-41344 — a client in Lisbon got Tuesday, a client in Toronto got Monday, same meeting,
+  held twice. The invite renders the day in the sender's zone instead of the recipient's.
+  One report, pale.harbour, email channel.</p>
+
+  <h2>What the desk read differently</h2>
+  <p>desk-notes.json read five reports as one "one day move": R-41202, R-41209, R-41236,
+  R-41344, R-41620. They are three problems — one day off (3), the early invite (1), the
+  two-zone meeting (1) — and none of them is the parser.</p>
+
+  <h2>Lessons</h2>
+  <ul>
+    <li>A merged ticket is only as good as the one subject line everyone was matched on. Count once, read twice.</li>
+    <li>Intake tags guess from the browser; the cause depends on the tenant and the form.</li>
+  </ul>
+
+  <p class="stamp">Signed: v1.eyJzdWIiOiIzNjY5IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyODY3NzIsImV4cCI6MTc5MzM3MzE3Mn0… (page carries the full signature in its frontmatter)</p>
+</main>
+</body>
+</html>
