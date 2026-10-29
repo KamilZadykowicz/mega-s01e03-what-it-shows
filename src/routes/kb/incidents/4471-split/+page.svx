@@ -25,15 +25,15 @@ report).
 
 | Problem | Reports | Ticket |
 |---|---|---|
-| Parser reads day-first dates as month-first | 374 | 1 |
+| Parser reads day-first dates as month-first | 379 | 1 |
 | booking-v3 form hint says MM/DD, form parses day-first | 33 | 2 |
 | Bookings land one day off (DST suspected) | 3 | 3 |
 | Invite timestamped before the booking was made | 1 | 4 |
 | Same meeting renders on different days in different zones | 1 | 5 |
 
-374 + 33 + 3 + 1 + 1 = 412.
+The desk counts 379 under the parser: it files every #4471 report that is not a booking-v3 form report there, by tenant. Five of those are the other problems above, split out as tickets 3–5, so the sum here is the desk’s view, not a partition. Unique reports in #4471: 412.
 
-## 1 · The parser flip — 374 reports
+## 1 · The parser flip — 379 reports
 
 Every tenant we take reports for writes the day first (en-GB, de-DE, es-ES, nl-NL, cs-CZ,
 it-IT, fr-FR, pl-PL, pt-PT, da-DK, en-IE). The shared parser reads every date month first,
@@ -41,7 +41,7 @@ so a tenant's dates come out flipped: "5 August" becomes 8 May. This is what mos
 is, and the fix already queued covers it. First seen 2026-04-01, last 2026-10-04, all 11
 tenants, channels app/email/form.
 
-Four of the 374 name the problem without a date pair in the body: a feature request for a
+Four of these name the problem without a date pair in the body: a feature request for a
 day-first setting (R-41290), two wrong-day complaints (R-41417, R-41514), and October
 bookings arriving as January (R-41615 — 1 October parsed as 10 January). We file them here
 because each is this bug as its reporter lived it.

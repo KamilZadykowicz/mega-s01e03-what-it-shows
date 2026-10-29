@@ -11,7 +11,7 @@ reports it covers, and adds a signed page about them to the kb.
 
 | # | Problem | Reports |
 |---|---------|---------|
-| 1 | Parser reads day-first dates as month-first (the mm/dd flip) | 374 |
+| 1 | Parser reads day-first dates as month-first (the mm/dd flip) | 379 |
 | 2 | booking-v3 form hint says MM/DD/YYYY but the form parses day-first | 33 |
 | 3 | Bookings land one day off (DST suspected) | 3 |
 | 4 | Invite timestamped before the booking was made | 1 |

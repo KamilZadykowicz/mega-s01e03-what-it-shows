@@ -25,6 +25,6 @@ Source: `reports-4471.json` (427 rows), `tenants/*.json`, `causes.ts`, `desk-not
    (feature request for a day-first setting), R-41417, R-41515 (wrong-day complaints /
    workaround), R-41615 (October bookings arriving as January — 1 October parsed as
    10 January). Each of the four is the parser bug as its reporter lived it, so they stay
-   in the parser group: 374.
+   in the parser group; counted with the desk’s view the parser ticket carries 379, the five one-day-move reports included (they are split out in tickets 3–5).
 
-Counts: 374 + 33 + 3 + 1 + 1 = 412. Ids per group: `group-ids.json`.
+Counts: The desk counts 379 under the parser: it files every #4471 report that is not a booking-v3 form report there, by tenant. Five of those are the other problems above, split out as tickets 3–5, so the sum here is the desk’s view, not a partition. Unique reports in #4471: 412. Ids per group: `group-ids.json`.
